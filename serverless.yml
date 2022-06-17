@@ -1,0 +1,127 @@
+service: serverless
+
+frameworkVersion: '3'
+
+custom:
+  #lambda1: lmb-${self:provider.stage}-${self:service}-lambda-01
+  lambda1: lmb-lambda-01
+  #lambda2: lmb-${self:provider.stage}-${self:service}-lambda-01
+  lambda2: lmb-lambda-02
+  #lambda3: lmb-${self:provider.stage}-${self:service}-lambda-01
+  lambda3: lmb-lambda-03
+  stepFunctionArchiveUploaded: sf-${self:provider.stage}-${self:service}
+  fileUploadBucketName: s3-${self:provider.stage}-${self:service}-archives-01
+
+package:
+  individually: true
+  exclude:
+    - awscliv2.zip
+    - terraform/**
+    - aws/**
+
+provider:
+  name: aws
+  region: us-east-1
+  stage: dev
+  runtime: nodejs12.x
+
+
+deploymentBucket: 
+    name: ${self:custom.fileUploadBucketName}-deploymentbucket
+    maxPreviousDeploymentArtifacts: 10
+    blockPublicAccess: true
+    skipPolicySetup: true
+    serverSideEncryption: AES256
+
+functions:
+  archiveUploaded1:
+    handler: src/handlers/archiveUploaded1.main
+    name: ${self:custom.lambda1}
+    memorySize: 128
+    description: Lambda 1
+    events:
+      - http:
+          path: example/lambda1
+          method: POST
+  archiveUploaded2:
+    handler: src/handlers/archiveUploaded2.main
+    name: ${self:custom.lambda2}
+    memorySize: 128
+    description: Lambda 2
+    events:
+      - http:
+          path: example/lambda2
+          method: POST
+  archiveUploaded3:
+    handler: src/handlers/archiveUploaded3.main
+    name: ${self:custom.lambda3}
+    memorySize: 128
+    description: Lambda 3
+    events:
+      - http:
+          path: example/lambda3
+          method: POST
+
+
+stepFunctions:
+  stateMachines:
+    stateMachineExample1:
+      #type: EXPRESS
+      events:
+        - eventBridge:
+            event:
+              source:
+                - aws.s3
+              detail-type:
+                - Object Created
+              detail:
+                bucket:
+                  name:
+                    - ${self:custom.fileUploadBucketName}
+                object:
+                  key:
+                    - prefix: 'video/'
+      #  - http:
+      #      path: step_test
+      #      method: POST
+      name: ${self:custom.stepFunctionArchiveUploaded}
+      definition:
+        StartAt: sf_step1
+        States:
+          sf_step1:
+            Type: Task
+            Resource: 
+              Fn::GetAtt: [archiveUploaded1, Arn]
+            Next: sf_step2
+          sf_step2:
+            Type: Task
+            Resource: 
+              Fn::GetAtt: [archiveUploaded2, Arn]
+            Next: sf_step3
+          sf_step3:
+            Type: Task
+            Resource: 
+              Fn::GetAtt: [archiveUploaded3, Arn]
+            ResultPath: "$"
+            OutputPath: "$"
+            End: true
+
+plugins:
+  - serverless-offline
+  - serverless-step-functions
+
+resources:
+  Resources:
+    Bucket: #! Creacion del bucket.
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.fileUploadBucketName}
+        AccessControl: Private
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+        NotificationConfiguration:
+          EventBridgeConfiguration:
+            EventBridgeEnabled: True

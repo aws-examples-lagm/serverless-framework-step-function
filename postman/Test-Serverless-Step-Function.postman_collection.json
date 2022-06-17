@@ -1,0 +1,73 @@
+{
+	"info": {
+		"_postman_id": "3af448c3-5d4d-4dec-87b6-be62467b3318",
+		"name": "Test-Serverless-Step-Function",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20788164"
+	},
+	"item": [
+		{
+			"name": "lambda1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/dev/example/lambda1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dev",
+						"example",
+						"lambda1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "lambda2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/dev/example/lambda2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dev",
+						"example",
+						"lambda2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "lambda3",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/dev/example/lambda3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dev",
+						"example",
+						"lambda3"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
