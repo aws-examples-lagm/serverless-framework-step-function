@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports.main = async (event) => {
-  console.log("lambda2");
+  console.log("lambda3");
   console.log(event);
   return {
     statusCode: 200,
